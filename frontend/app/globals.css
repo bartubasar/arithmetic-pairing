@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg-base text-ivory-100 font-ui;
+  }
+}
+
+@layer components {
+  .tile {
+    @apply relative z-tile h-16 w-16 rounded-lg border-2 border-ivory-400 bg-ivory-50 font-tile text-xl font-bold text-jade-900 shadow-tile transition-all duration-200 select-none;
+  }
+
+  .tile::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    background: theme("colors.ivory.300");
+    z-index: -1;
+  }
+
+  .tile-hover {
+    @apply hover:-translate-y-[3px] hover:shadow-[6px_10px_16px_rgba(0,0,0,0.5)];
+  }
+
+  .tile-selected {
+    @apply bg-[#fffbe8] ring-2 ring-gold-300 animate-tile-select;
+  }
+
+  .tile-matched {
+    @apply scale-0 opacity-0;
+  }
+
+  .tile-locked {
+    @apply cursor-not-allowed opacity-50 grayscale;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg border border-jade-300 bg-gradient-to-b from-jade-400 to-jade-600 px-4 py-2 font-ui font-semibold text-white shadow transition hover:brightness-105 active:translate-y-[1px];
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center rounded-lg border border-gold-200 bg-gradient-to-b from-gold-200 to-gold-300 px-4 py-2 font-ui font-semibold text-[#3f2d10] shadow transition hover:brightness-105 active:translate-y-[1px];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-lg border border-jade-500 bg-transparent px-4 py-2 font-ui font-semibold text-ivory-300 transition hover:bg-jade-900/20;
+  }
+}

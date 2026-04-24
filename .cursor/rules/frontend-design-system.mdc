@@ -1,0 +1,29 @@
+---
+description: Enforce project design system usage in frontend work
+globs: frontend/**/*.{ts,tsx,js,jsx,css,scss,html}
+alwaysApply: false
+---
+
+# Frontend Design System Rule
+
+Bu projede frontend tarafında her zaman mevcut design system kullanılmalıdır.
+
+## Source of Truth
+
+- `mahjong-design-system.html`
+- `design-system.md`
+
+İki kaynak eşit önceliklidir; biriyle çelişen bir öneri/uygulama yapılmamalıdır.
+
+## Required Behavior
+
+- Yeni UI geliştirirken önce bu iki dosyadaki kurallar ve bileşen desenleri referans alınır.
+- Renk, tipografi, spacing, border radius, shadow, button/input/card/modal stilleri bu kaynaklara sadık kalır.
+- Yeni bileşen yazarken mevcut bileşen adı, varyant yapısı ve class yaklaşımı korunur.
+- Keyfi yeni tasarım dili (farklı token, farklı görsel hiyerarşi, farklı bileşen anatomisi) eklenmez.
+- Mevcut tasarım sisteminde karşılığı yoksa önce mevcut desenlerle en yakın uyumlu çözüm seçilir.
+
+## Before Finalizing UI Changes
+
+- Yapılan değişiklikler `mahjong-design-system.html` ve `design-system.md` ile tutarlılık açısından kontrol edilir.
+- Tutarsızlık varsa kod, design system'e uyacak şekilde revize edilir.
