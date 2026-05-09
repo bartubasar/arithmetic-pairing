@@ -15,6 +15,7 @@ const config: Config = {
           400: "#3a8a5e",
           500: "#2d6e4a",
           600: "#24583b",
+          700: "#1e4430",
           900: "#0a1f14"
         },
         ivory: {
@@ -36,8 +37,8 @@ const config: Config = {
         "bg-elevated": "#1e3828"
       },
       fontFamily: {
-        display: ["Cinzel", "Noto Serif", "serif"],
-        tile: ["Noto Sans", "sans-serif"],
+        display: ["var(--font-display)", "Noto Serif", "serif"],
+        tile: ["var(--font-tile)", "Noto Sans", "sans-serif"],
         ui: ["system-ui", "sans-serif"]
       },
       zIndex: {
@@ -50,7 +51,8 @@ const config: Config = {
       },
       boxShadow: {
         tile: "4px 6px 12px rgba(0,0,0,0.45)",
-        modal: "0 8px 48px rgba(0,0,0,0.6)"
+        modal: "0 8px 48px rgba(0,0,0,0.6)",
+        "gold-300": "0 0 14px 2px rgba(232, 192, 64, 0.75)"
       },
       keyframes: {
         "tile-select": {
