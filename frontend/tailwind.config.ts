@@ -67,10 +67,16 @@ const config: Config = {
         "modal-up": {
           "0%": { opacity: "0", transform: "translateY(18px) scale(0.98)" },
           "100%": { opacity: "1", transform: "translateY(0) scale(1)" }
+        },
+        "tile-shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "25%": { transform: "translateX(-5px)" },
+          "75%": { transform: "translateX(5px)" }
         }
       },
       animation: {
         "tile-select": "tile-select 220ms ease-out",
+        "tile-shake": "tile-shake 400ms ease-in-out",
         "score-float": "score-float 850ms ease-out forwards",
         "modal-up": "modal-up 260ms cubic-bezier(0.2, 0.8, 0.2, 1)"
       }

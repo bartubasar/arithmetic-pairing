@@ -1,4 +1,4 @@
-import type { TileVisualState } from "../data/mockData";
+import type { TileVisualState } from "../types/game";
 
 export interface TileProps {
   expression: string;
@@ -12,7 +12,8 @@ const stateClass: Record<TileVisualState, string> = {
   default: "tile-hover",
   selected: "bg-[#fffbe8] shadow-gold-300 animate-tile-select",
   matched: "tile-matched pointer-events-none",
-  locked: "tile-locked"
+  locked: "tile-locked",
+  error: "ring-2 ring-crimson-400 bg-crimson-400/15 animate-tile-shake"
 };
 
 export function Tile({
