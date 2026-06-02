@@ -6,6 +6,8 @@ export interface HUDProps {
   score: number;
   timeRemainingSec: number;
   timeTotalSec: number;
+  isPaused?: boolean;
+  isGameActive?: boolean;
   onPause?: () => void;
   onHint?: () => void;
 }
@@ -23,12 +25,15 @@ export function HUD({
   score,
   timeRemainingSec,
   timeTotalSec,
+  isPaused = false,
+  isGameActive = true,
   onPause,
   onHint
 }: HUDProps) {
   const ratio = timeTotalSec > 0 ? Math.min(1, timeRemainingSec / timeTotalSec) : 0;
   const pct = Math.round(ratio * 100);
   const lowTime = ratio > 0 && ratio < 0.2;
+  const controlsDisabled = !isGameActive;
 
   return (
     <header className="sticky top-0 z-ui border-b border-jade-700/30 bg-bg-surface/90 font-ui backdrop-blur-md">
@@ -66,7 +71,7 @@ export function HUD({
               <div
                 className={`h-full rounded-full transition-[width] duration-300 ${
                   lowTime ? "bg-crimson-400" : "bg-jade-500"
-                }`}
+                } ${isPaused ? "opacity-60" : ""}`}
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -77,13 +82,16 @@ export function HUD({
               type="button"
               className="btn-ghost text-xs sm:text-sm"
               onClick={() => onPause?.()}
+              disabled={controlsDisabled}
+              aria-pressed={isPaused}
             >
-              Duraklat
+              {isPaused ? "Devam Et" : "Duraklat"}
             </button>
             <button
               type="button"
               className="btn-ghost text-xs sm:text-sm"
               onClick={() => onHint?.()}
+              disabled={controlsDisabled || isPaused}
             >
               İpucu
             </button>

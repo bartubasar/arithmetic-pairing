@@ -1,4 +1,10 @@
-export type TileVisualState = "default" | "selected" | "matched" | "locked" | "error";
+export type TileVisualState =
+  | "default"
+  | "selected"
+  | "matched"
+  | "locked"
+  | "error"
+  | "hint";
 
 export interface GameTile {
   id: string;

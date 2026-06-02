@@ -1,18 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { expressionForLevel1Tile } from "../data/level1Expressions";
 import { checkMatch, fetchLevel } from "../lib/api";
+import { findHintPair, getPlayableTileIds } from "../lib/playability";
 import type { GameTile, TileVisualState } from "../types/game";
 import { Tile } from "./Tile";
 
 const MATCH_SCORE = 10;
 const MISMATCH_ANIMATION_MS = 450;
+const HINT_DURATION_MS = 3000;
 
 export interface GameBoardProps {
   levelId?: number;
   columns?: number;
   rows?: number;
+  isPaused?: boolean;
+  hintToken?: number;
   onScoreChange?: (delta: number) => void;
   onLevelMeta?: (meta: { levelName: string; levelDifficulty: string }) => void;
   onWin?: () => void;
@@ -33,10 +37,14 @@ function layoutToTiles(
 function tileVisualState(
   tileId: string,
   selectedIds: string[],
-  errorIds: string[]
+  errorIds: string[],
+  hintIds: string[],
+  playableIds: Set<string>
 ): TileVisualState {
+  if (hintIds.includes(tileId)) return "hint";
   if (errorIds.includes(tileId)) return "error";
   if (selectedIds.includes(tileId)) return "selected";
+  if (!playableIds.has(tileId)) return "locked";
   return "default";
 }
 
@@ -44,6 +52,8 @@ export function GameBoard({
   levelId = 1,
   columns = 8,
   rows = 5,
+  isPaused = false,
+  hintToken = 0,
   onScoreChange,
   onLevelMeta,
   onWin
@@ -51,12 +61,15 @@ export function GameBoard({
   const [tiles, setTiles] = useState<GameTile[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [errorIds, setErrorIds] = useState<string[]>([]);
+  const [hintIds, setHintIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isMatching, setIsMatching] = useState(false);
 
   const onWinRef = useRef(onWin);
   onWinRef.current = onWin;
+
+  const playableIds = useMemo(() => getPlayableTileIds(tiles), [tiles]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -66,6 +79,7 @@ export function GameBoard({
       setLoadError(null);
       setSelectedIds([]);
       setErrorIds([]);
+      setHintIds([]);
 
       try {
         const level = await fetchLevel(levelId, controller.signal);
@@ -92,6 +106,27 @@ export function GameBoard({
     return () => controller.abort();
   }, [levelId, onLevelMeta]);
 
+  useEffect(() => {
+    if (hintToken === 0 || isPaused || isLoading || tiles.length === 0) {
+      return;
+    }
+
+    const pair = findHintPair(tiles, playableIds);
+    if (!pair) {
+      return;
+    }
+
+    setHintIds(pair);
+    const timer = window.setTimeout(() => setHintIds([]), HINT_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [hintToken, isPaused, isLoading, tiles, playableIds]);
+
+  useEffect(() => {
+    if (isPaused) {
+      setSelectedIds([]);
+    }
+  }, [isPaused]);
+
   const evaluateMatch = useCallback(
     async (idA: string, idB: string) => {
       const tileA = tiles.find((t) => t.id === idA);
@@ -106,6 +141,7 @@ export function GameBoard({
         if (match) {
           setTiles((prev) => prev.filter((t) => t.id !== idA && t.id !== idB));
           setSelectedIds([]);
+          setHintIds((prev) => prev.filter((id) => id !== idA && id !== idB));
           onScoreChange?.(MATCH_SCORE);
         } else {
           setErrorIds([idA, idB]);
@@ -129,8 +165,8 @@ export function GameBoard({
 
   const handleTileClick = useCallback(
     (tileId: string) => {
-      if (isMatching || isLoading) return;
-      if (!tiles.some((t) => t.id === tileId)) return;
+      if (isPaused || isMatching || isLoading) return;
+      if (!playableIds.has(tileId)) return;
 
       setSelectedIds((prev) => {
         if (prev.includes(tileId)) {
@@ -147,7 +183,7 @@ export function GameBoard({
         return prev;
       });
     },
-    [evaluateMatch, isLoading, isMatching, tiles]
+    [evaluateMatch, isLoading, isMatching, isPaused, playableIds]
   );
 
   useEffect(() => {
@@ -180,7 +216,10 @@ export function GameBoard({
   }
 
   return (
-    <div className="relative z-board mx-auto w-full max-w-5xl px-4 py-6">
+    <div
+      className={`relative z-board mx-auto w-full max-w-5xl px-4 py-6 ${isPaused ? "pointer-events-none" : ""}`}
+      aria-hidden={isPaused}
+    >
       <div
         className="relative rounded-2xl border border-jade-700/30 bg-bg-surface/80 p-4 shadow-tile sm:p-6"
         style={{
@@ -191,23 +230,28 @@ export function GameBoard({
           gap: "0.5rem"
         }}
       >
-        {sorted.map((t) => (
-          <div
-            key={t.id}
-            className="flex items-center justify-center"
-            style={{
-              gridColumnStart: t.gridCol,
-              gridRowStart: t.gridRow
-            }}
-          >
-            <Tile
-              expression={t.expression}
-              state={tileVisualState(t.id, selectedIds, errorIds)}
-              layer={t.layer}
-              onClick={() => handleTileClick(t.id)}
-            />
-          </div>
-        ))}
+        {sorted.map((t) => {
+          const state = tileVisualState(t.id, selectedIds, errorIds, hintIds, playableIds);
+          const canClick = !isPaused && playableIds.has(t.id);
+
+          return (
+            <div
+              key={t.id}
+              className="flex items-center justify-center"
+              style={{
+                gridColumnStart: t.gridCol,
+                gridRowStart: t.gridRow
+              }}
+            >
+              <Tile
+                expression={t.expression}
+                state={state}
+                layer={t.layer}
+                onClick={canClick ? () => handleTileClick(t.id) : undefined}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

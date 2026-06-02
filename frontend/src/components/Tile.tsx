@@ -13,7 +13,8 @@ const stateClass: Record<TileVisualState, string> = {
   selected: "bg-[#fffbe8] shadow-gold-300 animate-tile-select",
   matched: "tile-matched pointer-events-none",
   locked: "tile-locked",
-  error: "ring-2 ring-crimson-400 bg-crimson-400/15 animate-tile-shake"
+  error: "ring-2 ring-crimson-400 bg-crimson-400/15 animate-tile-shake",
+  hint: "ring-2 ring-gold-200 bg-gold-200/25 shadow-[0_0_22px_6px_rgba(244,216,112,0.75)]"
 };
 
 export function Tile({
