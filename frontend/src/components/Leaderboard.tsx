@@ -65,6 +65,9 @@ export function Leaderboard({
     );
   }
 
+  // Tüm zamanların toplam skorunu veritabanından gelen verilerle dinamik hesaplama
+  const totalAllTimeScore = rows.reduce((sum, session) => sum + (session.final_score_delta ?? 0), 0);
+
   return (
     <div className={compact ? "" : "w-full"}>
       <h3
@@ -113,6 +116,13 @@ export function Leaderboard({
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Dinamik Toplam Skor Alanı */}
+      <div className="mt-4 flex justify-end">
+        <div className="text-right text-[#0c3328] font-bold text-lg px-4 py-2 bg-[#fffff0] border-2 border-[#0c3328] rounded-md shadow-sm">
+          Tüm Zamanların Toplam Skoru: {totalAllTimeScore > 0 ? `+${totalAllTimeScore}` : totalAllTimeScore}
+        </div>
       </div>
     </div>
   );
