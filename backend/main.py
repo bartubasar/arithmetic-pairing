@@ -66,6 +66,10 @@ class SessionEndRequest(BaseModel):
     status: SessionStatus
     duration: int = Field(..., ge=0, description="Oturum süresi (saniye)")
     errors: int = Field(..., ge=0, description="Yapılan hata sayısı")
+    final_score: int = Field(
+        ...,
+        description="Zorluk çarpanı uygulanmış nihai skor (negatif olabilir)",
+    )
 
 
 class LayoutTile(BaseModel):
@@ -251,6 +255,7 @@ def end_session(body: SessionEndRequest):
         "status": body.status.value,
         "duration_seconds": body.duration,
         "errors_made": body.errors,
+        "final_score_delta": body.final_score,
     }
 
     try:

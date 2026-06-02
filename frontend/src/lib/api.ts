@@ -35,3 +35,26 @@ export async function checkMatch(
   });
   return parseJson<MatchApiResponse>(res);
 }
+
+export interface SessionEndPayload {
+  user_id: string;
+  level_id: number;
+  status: "completed" | "failed" | "abandoned";
+  duration: number;
+  errors: number;
+  final_score: number;
+}
+
+export interface SessionEndResponse {
+  success: boolean;
+  session: Record<string, unknown>;
+}
+
+export async function endSession(payload: SessionEndPayload): Promise<SessionEndResponse> {
+  const res = await fetch(`${API_BASE}/api/session/end`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  return parseJson<SessionEndResponse>(res);
+}

@@ -10,6 +10,9 @@ export interface HUDProps {
   isGameActive?: boolean;
   onPause?: () => void;
   onHint?: () => void;
+  onSignOut?: () => void;
+  signingOut?: boolean;
+  onOpenRules?: () => void;
 }
 
 function formatTime(totalSec: number) {
@@ -28,7 +31,10 @@ export function HUD({
   isPaused = false,
   isGameActive = true,
   onPause,
-  onHint
+  onHint,
+  onSignOut,
+  signingOut = false,
+  onOpenRules
 }: HUDProps) {
   const ratio = timeTotalSec > 0 ? Math.min(1, timeRemainingSec / timeTotalSec) : 0;
   const pct = Math.round(ratio * 100);
@@ -46,7 +52,13 @@ export function HUD({
         <div className="flex flex-wrap items-center gap-4 sm:justify-end">
           <div className="text-right">
             <p className="text-[10px] uppercase tracking-wide text-ivory-300">Skor</p>
-            <p className="font-display text-xl font-semibold text-gold-300 tabular-nums">{score}</p>
+            <p
+              className={`font-display text-xl font-semibold tabular-nums ${
+                score < 0 ? "text-crimson-400" : "text-gold-300"
+              }`}
+            >
+              {score}
+            </p>
           </div>
 
           <div className="min-w-[140px] flex-1 sm:min-w-[180px] sm:flex-none">
@@ -80,6 +92,15 @@ export function HUD({
           <div className="flex items-center gap-2">
             <button
               type="button"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-ivory-400/30 text-sm font-bold text-ivory-300 transition hover:border-ivory-300/50 hover:bg-ivory-50/5 hover:text-ivory-100"
+              onClick={() => onOpenRules?.()}
+              aria-label="Nasıl oynanır"
+              title="Nasıl Oynanır?"
+            >
+              ?
+            </button>
+            <button
+              type="button"
               className="btn-ghost text-xs sm:text-sm"
               onClick={() => onPause?.()}
               disabled={controlsDisabled}
@@ -94,6 +115,14 @@ export function HUD({
               disabled={controlsDisabled || isPaused}
             >
               İpucu
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-ivory-400/35 bg-transparent px-3 py-2 text-xs font-semibold text-ivory-300 transition hover:border-ivory-300/50 hover:bg-ivory-50/5 hover:text-ivory-100 disabled:opacity-50 sm:text-sm"
+              onClick={() => onSignOut?.()}
+              disabled={signingOut}
+            >
+              {signingOut ? "Çıkılıyor…" : "Çıkış Yap"}
             </button>
           </div>
         </div>

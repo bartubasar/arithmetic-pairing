@@ -52,4 +52,13 @@
   .btn-ghost {
     @apply inline-flex items-center justify-center rounded-lg border border-jade-500 bg-transparent px-4 py-2 font-ui font-semibold text-ivory-300 transition hover:bg-jade-900/20;
   }
+
+  /* Ivory kartlar: body'den gelen açık metin rengini geçersiz kılar */
+  .on-ivory {
+    @apply text-ink;
+  }
+
+  .on-ivory-muted {
+    @apply text-ink-muted;
+  }
 }
