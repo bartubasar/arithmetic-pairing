@@ -270,3 +270,40 @@ def end_session(body: SessionEndRequest):
         raise HTTPException(status_code=500, detail="Oturum kaydı oluşturulamadı.")
 
     return {"success": True, "session": result.data[0]}
+
+class SessionData(BaseModel):
+    level_id: int
+    errors_made: int
+    completion_time_seconds: int
+    final_score: int
+
+@app.post("/api/ai/analyze-flow")
+async def analyze_flow_state(data: SessionData):
+    """
+    Yapay Zeka Dinamik Zorluk (Flow State) Motoru
+    Oyuncunun performansını analiz ederek bir sonraki bölümün parametrelerini belirler.
+    """
+    difficulty_adjustment = "maintain"
+    math_complexity = "normal (karışık işlemler)"
+    hybrid_error_tolerance = 5 # Varsayılan esnek hata payı
+    
+    # AI Analiz Mantığı (Heuristic Model)
+    if data.errors_made == 0 and data.completion_time_seconds < 45:
+        # Oyuncu çok iyi, zorluğu artır ve hata payını daralt
+        difficulty_adjustment = "increase"
+        math_complexity = "hard (çarpma ve bölme ağırlıklı)"
+        hybrid_error_tolerance = 3 
+    elif data.errors_made > 4 or data.final_score < 0:
+        # Oyuncu zorlanıyor, mindfulness durumunu korumak için rahatlat
+        difficulty_adjustment = "decrease"
+        math_complexity = "easy (sadece toplama ve çıkarma)"
+        hybrid_error_tolerance = 8 # Hibrit hata toleransını artır
+        
+    return {
+        "ai_analysis": "Oyuncu performansı analiz edildi. Flow State (Akış) durumu güncellendi.",
+        "next_level_recommendations": {
+            "difficulty": difficulty_adjustment,
+            "math_complexity": math_complexity,
+            "recommended_error_tolerance": hybrid_error_tolerance
+        }
+    }

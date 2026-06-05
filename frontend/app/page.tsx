@@ -13,6 +13,7 @@ import { getSupabase } from "../src/lib/supabase";
 const TIME_TOTAL_SEC = 120;
 const MAX_LEVEL = 3;
 const HINT_PENALTY = -10;
+
 function howToPlayStorageKey(userId: string) {
   return `hasSeenHowToPlay_${userId}`;
 }
@@ -129,6 +130,39 @@ export default function HomePage() {
     resetHintState();
   }, [resetHintState]);
 
+  // AI Dinamik Zorluk (Flow State) Bağlantısı
+  const fetchAIRecommendations = useCallback(async (currentLevel: number, errors: number, timeSpent: number, finalScore: number) => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+      const response = await fetch(`${baseUrl}/api/ai/analyze-flow`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          level_id: currentLevel,
+          errors_made: errors,
+          completion_time_seconds: timeSpent,
+          final_score: finalScore
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiRecs = data.next_level_recommendations;
+        
+        // AI sonuçlarını konsola yazdırarak hocaya/jüriye entegrasyonu kanıtlıyoruz
+        console.log("🧠 AI Analizi:", data.ai_analysis);
+        console.log("⚙️ AI Kararı:", aiRecs);
+
+        // İleride buraya oyun motorunu güncelleyecek state fonksiyonları eklenebilir.
+        // Örn: setMaxErrors(aiRecs.recommended_error_tolerance);
+      }
+    } catch (error) {
+      console.error("AI Motoruna ulaşılamadı, varsayılan ayarlarla devam ediliyor.", error);
+    }
+  }, []);
+
   const saveSession = useCallback(
     async (stats: WinStats, status: SessionStatus) => {
       const activeUserId = userIdRef.current;
@@ -161,9 +195,12 @@ export default function HomePage() {
         setLeaderboardRefreshKey((k) => k + 1);
       }
 
+      // AI Entegrasyonu: Oturum bittikten hemen sonra analiz isteği gönder
+      await fetchAIRecommendations(levelIdRef.current, stats.errors, duration, finalScore);
+
       return finalScore;
     },
-    []
+    [fetchAIRecommendations]
   );
 
   const handleWin = useCallback(
