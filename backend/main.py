@@ -29,7 +29,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # Frontend'in adresi
+    allow_origins=[
+        "http://localhost:3000",
+        "https://arithmetic-pairing.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
